@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Open Anchor</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #0f1410;
+      --fg: #f4f1ea;
+      --muted: #b7b2a6;
+      --accent: #c4a35a;
+      --card: #1a211c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #243028 0%, var(--bg) 55%);
+      color: var(--fg);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    main {
+      width: min(420px, 100%);
+      background: color-mix(in srgb, var(--card) 92%, transparent);
+      border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+      border-radius: 20px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+    }
+    p {
+      margin: 0 0 20px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.98rem;
+    }
+    .actions { display: grid; gap: 10px; }
+    a.btn {
+      display: block;
+      text-decoration: none;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      background: var(--accent);
+      color: #1a1408;
+    }
+    a.btn.secondary {
+      background: transparent;
+      color: var(--fg);
+      border: 1px solid color-mix(in srgb, var(--fg) 22%, transparent);
+    }
+    a.btn.disabled {
+      opacity: 0.55;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <main id="root">
+    <h1>Anchor</h1>
+    <p id="msg">Opening the app…</p>
+    <div class="actions" id="actions"></div>
+  </main>
+  <script>
+(function () {
+  var APP_STORE = "https://apps.apple.com/us/app/mindsight-anchor/id6758681004";
+  // Optional: set after Play listing exists, e.g. https://play.google.com/store/apps/details?id=...
+  var PLAY_STORE = "";
+  var SCHEME = "mindsight://lock";
+
+  var ua = (navigator.userAgent || "").toLowerCase();
+  var isAndroid = /android/.test(ua);
+  var isIOS = /iphone|ipad|ipod/.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  var msg = document.getElementById("msg");
+  var actions = document.getElementById("actions");
+
+  function btn(href, label, secondary) {
+    var a = document.createElement("a");
+    a.className = "btn" + (secondary ? " secondary" : "");
+    a.href = href;
+    a.textContent = label;
+    return a;
+  }
+
+  function disabled(label) {
+    var a = document.createElement("a");
+    a.className = "btn secondary disabled";
+    a.href = "#";
+    a.textContent = label;
+    a.onclick = function (e) { e.preventDefault(); };
+    return a;
+  }
+
+  if (isIOS) {
+    msg.textContent = "Opening the app… If you don't have Anchor yet, you'll be sent to the App Store.";
+    actions.appendChild(btn(SCHEME, "Open Anchor", false));
+    actions.appendChild(btn(APP_STORE, "Get on the App Store", true));
+
+    var left = false;
+    function goStore() {
+      if (!left) window.location.replace(APP_STORE);
+    }
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) left = true;
+    });
+    window.addEventListener("pagehide", function () { left = true; });
+    window.location.href = SCHEME;
+    setTimeout(goStore, 1500);
+    return;
+  }
+
+  if (isAndroid) {
+    if (PLAY_STORE) {
+      msg.textContent = "Taking you to Google Play…";
+      actions.appendChild(btn(PLAY_STORE, "Get on Google Play", false));
+      actions.appendChild(btn(APP_STORE, "App Store (iPhone)", true));
+      window.location.replace(PLAY_STORE);
+    } else {
+      msg.textContent = "Anchor for Android isn't listed on Google Play yet. Check back soon, or use an iPhone.";
+      actions.appendChild(btn(APP_STORE, "Get on the App Store", false));
+    }
+    return;
+  }
+
+  msg.textContent = "Choose your store to download Mindsight Anchor, then tap your Anchor device to lock and unlock.";
+  actions.appendChild(btn(APP_STORE, "Get on the App Store", false));
+  if (PLAY_STORE) {
+    actions.appendChild(btn(PLAY_STORE, "Get on Google Play", true));
+  } else {
+    actions.appendChild(disabled("Google Play — coming soon"));
+  }
+  actions.appendChild(btn(SCHEME, "I already have the app", true));
+})();
+  </script>
+</body>
+</html>
