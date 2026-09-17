@@ -66,7 +66,7 @@
     <p id="msg">Detecting your device…</p>
     <div id="stores">
       <a id="app-store" href="https://apps.apple.com/us/app/mindsight-anchor/id6758681004">Download on the App Store</a>
-      <a id="play-store" href="https://play.google.com/store/apps/details?id=com.mindsight.anchor">Get it on Google Play</a>
+      <a id="play-store" href="market://details?id=com.mindsight.anchor">Get it on Google Play</a>
     </div>
   </main>
   <script>
@@ -74,6 +74,11 @@
   var APP_STORE = "https://apps.apple.com/us/app/mindsight-anchor/id6758681004";
   var PLAY_STORE =
     "https://play.google.com/store/apps/details?id=com.mindsight.anchor";
+  var PLAY_MARKET = "market://details?id=com.mindsight.anchor";
+  var PLAY_INTENT =
+    "intent://details?id=com.mindsight.anchor#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url=" +
+    encodeURIComponent(PLAY_STORE) +
+    ";end";
 
   var ua = (navigator.userAgent || "").toLowerCase();
   var isAndroid = /android/.test(ua);
@@ -98,12 +103,14 @@
   }
 
   if (isAndroid) {
-    msg.textContent = "Taking you to Google Play…";
+    playLink.href = PLAY_MARKET;
+    msg.textContent = "Opening Google Play…";
     showStores("android");
-    window.location.replace(PLAY_STORE);
+    window.location.replace(PLAY_INTENT);
     return;
   }
 
+  playLink.href = PLAY_STORE;
   msg.textContent = "Get Anchor on the App Store or Google Play.";
   showStores();
 })();
