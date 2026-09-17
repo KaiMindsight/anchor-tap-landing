@@ -43,44 +43,69 @@
       line-height: 1.45;
       font-size: 0.98rem;
     }
+    #stores {
+      display: none;
+      margin-top: 18px;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #stores.show { display: flex; }
+    #stores a {
+      color: var(--fg);
+      font-weight: 700;
+      text-decoration: none;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
+    }
   </style>
 </head>
 <body>
   <main>
     <h1>Anchor</h1>
     <p id="msg">Detecting your device…</p>
+    <div id="stores">
+      <a id="app-store" href="https://apps.apple.com/us/app/mindsight-anchor/id6758681004">Download on the App Store</a>
+      <a id="play-store" href="https://play.google.com/store/apps/details?id=com.mindsight.anchor">Get it on Google Play</a>
+    </div>
   </main>
   <script>
 (function () {
   var APP_STORE = "https://apps.apple.com/us/app/mindsight-anchor/id6758681004";
-  // Optional: set after Play listing exists
-  var PLAY_STORE = "";
+  var PLAY_STORE =
+    "https://play.google.com/store/apps/details?id=com.mindsight.anchor";
 
   var ua = (navigator.userAgent || "").toLowerCase();
   var isAndroid = /android/.test(ua);
   var isIOS = /iphone|ipad|ipod/.test(ua) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var msg = document.getElementById("msg");
+  var stores = document.getElementById("stores");
+  var appLink = document.getElementById("app-store");
+  var playLink = document.getElementById("play-store");
+
+  function showStores(which) {
+    if (which === "ios") playLink.hidden = true;
+    if (which === "android") appLink.hidden = true;
+    stores.classList.add("show");
+  }
 
   if (isIOS) {
     msg.textContent = "Taking you to the App Store…";
+    showStores("ios");
     window.location.replace(APP_STORE);
     return;
   }
 
   if (isAndroid) {
-    if (PLAY_STORE) {
-      msg.textContent = "Taking you to Google Play…";
-      window.location.replace(PLAY_STORE);
-    } else {
-      msg.textContent = "Anchor for Android is coming soon. Check back later.";
-    }
+    msg.textContent = "Taking you to Google Play…";
+    showStores("android");
+    window.location.replace(PLAY_STORE);
     return;
   }
 
-  // Desktop / unknown: auto-prefer App Store; no lock deep link on this page.
-  msg.textContent = "Taking you to the App Store…";
-  window.location.replace(APP_STORE);
+  msg.textContent = "Get Anchor on the App Store or Google Play.";
+  showStores();
 })();
   </script>
 </body>
